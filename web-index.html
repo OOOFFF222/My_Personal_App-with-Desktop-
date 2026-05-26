@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<meta name="theme-color" content="#4f8ef7"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="소인의 앱"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%234f8ef7' width='180' height='180'/><text x='90' y='100' font-size='90' fill='white' text-anchor='middle' font-weight='bold'>S</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<title>소인의 앱</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--surface:#111318;--surface2:#181c24;--border:#232838;--accent:#4f8ef7;--accent2:#a78bfa;--green:#34d399;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;overflow:hidden}
+#root{height:100%;display:flex;flex-direction:column}
+
+.top-bar{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between}
+.top-title{font-size:16px;font-weight:600;color:var(--text)}
+.top-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sync-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);padding:0 8px}
+.tab-btn{flex:1;padding:12px;text-align:center;border:none;background:none;color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;transition:all .2s;border-bottom:3px solid transparent}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.content{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.card-label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between}
+
+.input-row{display:flex;gap:6px;margin-bottom:10px}
+.inp{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;outline:none;-webkit-appearance:none}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--muted)}
+
+.btn{background:var(--accent);color:#fff;border:none;font-family:'Sora',sans-serif;font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-g{background:var(--green);color:#000}
+.btn-p{background:var(--accent2)}
+
+.task{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.task:last-child{border-bottom:none}
+.chk{width:18px;height:18px;border-radius:6px;border:2px solid var(--border);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.chk.on{background:var(--green);border-color:var(--green)}
+.task-txt{flex:1;font-size:13px;line-height:1.4}
+.task-txt.done{text-decoration:line-through;opacity:.4}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:3px;border-radius:5px;display:flex;transition:all .15s}
+.icon-btn:active{color:var(--red);background:var(--surface2)}
+
+.prog{height:4px;background:var(--surface2);border-radius:4px;margin-bottom:12px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .3s}
+
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:12px}
+.spinner{width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.paper-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.paper-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;line-height:1.4}
+.paper-meta{font-size:10px;color:var(--muted);margin-bottom:8px}
+.paper-sec{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:6px 0 2px;font-weight:600}
+.paper-body{font-size:11px;color:#c0c8d8;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="top-bar">
+    <div>
+      <div class="top-title">소인의 앱</div>
+      <div class="top-sub">할 일 · 논문 관리</div>
+    </div>
+    <div class="sync-badge" id="sync-badge">
+      <span class="sync-dot"></span>
+      <span>연동</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('todo')">📋 할 일</button>
+    <button class="tab-btn" onclick="switchTab('paper')">📚 논문</button>
+  </div>
+
+  <div class="content" id="content">
+    <!-- TODO TAB -->
+    <div id="todo-tab">
+      <!-- Weekly -->
+      <div class="card">
+        <div class="card-label">
+          <span>📅 이번 주</span>
+          <span id="w-count">0개</span>
+        </div>
+        <div class="input-row">
+          <input class="inp" id="w-inp" placeholder="추가..." onkeydown="if(event.key==='Enter')addWeekly()"/>
+          <button class="btn" onclick="addWeekly()">+</button>
+        </div>
+        <div id="w-list"></div>
+      </div>
+
+      <!-- Today -->
+      <div class="card">
+        <div class="card-label">
+          <span>☀️ 오늘</span>
+          <span id="t-count">0/0</span>
+        </div>
+        <div class="prog"><div class="prog-fill" id="t-prog" style="width:0%"></div></div>
+        <div class="input-row">
+          <input class="inp" id="t-inp" placeholder="추가..." onkeydown="if(event.key==='Enter')addToday()"/>
+          <button class="btn btn-g" onclick="addToday()">+</button>
+        </div>
+        <div id="t-list"></div>
+      </div>
+    </div>
+
+    <!-- PAPER TAB -->
+    <div id="paper-tab" style="display:none">
+      <div class="card">
+        <div class="card-label">🔍 논문 검색</div>
+        <div class="input-row">
+          <input class="inp" id="kw-inp" placeholder="키워드..." onkeydown="if(event.key==='Enter')searchPapers()"/>
+          <button class="btn" id="search-btn" onclick="searchPapers()">검색</button>
+        </div>
+      </div>
+      <div id="paper-results"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── API 기본 설정 ──────────────────────────────────────────
+const getServerUrl = () => {
+  return 'mypersonalapp-with-desktop-production.up.railway.app'
+};
+
+const API = {
+  weekly: () => `${getServerUrl()}/api/weekly`,
+  today: () => `${getServerUrl()}/api/today`,
+  papers: () => `${getServerUrl()}/api/papers`,
+  health: () => `${getServerUrl()}/api/health`,
+};
+
+// ── 데이터 로드 ────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [weeklyRes, todayRes] = await Promise.all([
+      fetch(API.weekly()),
+      fetch(API.today())
+    ]);
+    if (!weeklyRes.ok || !todayRes.ok) throw new Error('Load failed');
+    const weekly = await weeklyRes.json();
+    const today = await todayRes.json();
+    renderWeekly(weekly);
+    renderToday(today);
+    updateSyncStatus(true);
+  } catch (e) {
+    console.error('Load error:', e);
+    updateSyncStatus(false);
+  }
+}
+
+// ── 동기화 상태 ────────────────────────────────────────────
+function updateSyncStatus(ok) {
+  const badge = document.getElementById('sync-badge');
+  badge.style.color = ok ? 'var(--green)' : 'var(--red)';
+  badge.textContent = ok ? '✓ 연동' : '✕ 오프라인';
+}
+
+// ── 탭 전환 ────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',Array.from(b.parentNode.children).indexOf(b)===(tab==='todo'?0:1)));
+  document.getElementById('todo-tab').style.display = tab === 'todo' ? 'block' : 'none';
+  document.getElementById('paper-tab').style.display = tab === 'paper' ? 'block' : 'none';
+}
+
+// ── 주간 할 일 ─────────────────────────────────────────────
+async function addWeekly() {
+  const inp = document.getElementById('w-inp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  try {
+    const res = await fetch(API.weekly(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (res.ok) loadAll();
+  } catch (e) { console.error(e); }
+}
+
+function renderWeekly(items) {
+  const list = document.getElementById('w-list');
+  document.getElementById('w-count').textContent = items.length + '개';
+  if (!items.length) { list.innerHTML = '<div class="empty">추가해보세요</div>'; return; }
+  list.innerHTML = items.map(t => `
+    <div class="task">
+      <button class="chk ${t.done?'on':''}" onclick="toggleWeekly('${t.id}')"></button>
+      <div class="task-txt ${t.done?'done':''}">${t.text}</div>
+      <button class="icon-btn" onclick="delWeekly('${t.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+async function toggleWeekly(id) {
+  const task = document.querySelector(`button[onclick*="toggleWeekly('${id}')"]`).closest('.task');
+  const done = !task.querySelector('.chk').classList.contains('on');
+  try {
+    await fetch(`${API.weekly()}/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ done })
+    });
+    loadAll();
+  } catch (e) { console.error(e); }
+}
+
+async function delWeekly(id) {
+  try {
+    await fetch(`${API.weekly()}/${id}`, { method: 'DELETE' });
+    loadAll();
+  } catch (e) { console.error(e); }
+}
+
+// ── 오늘 할 일 ─────────────────────────────────────────────
+async function addToday() {
+  const inp = document.getElementById('t-inp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  try {
+    const res = await fetch(API.today(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (res.ok) loadAll();
+  } catch (e) { console.error(e); }
+}
+
+function renderToday(items) {
+  const list = document.getElementById('t-list');
+  const done = items.filter(t => t.done).length;
+  const pct = items.length ? Math.round(done / items.length * 100) : 0;
+  document.getElementById('t-count').textContent = `${done}/${items.length}`;
+  document.getElementById('t-prog').style.width = pct + '%';
+  if (!items.length) { list.innerHTML = '<div class="empty">추가해보세요</div>'; return; }
+  list.innerHTML = items.map(t => `
+    <div class="task">
+      <button class="chk ${t.done?'on':''}" onclick="toggleToday('${t.id}')"></button>
+      <div class="task-txt ${t.done?'done':''}">${t.text}</div>
+      <button class="icon-btn" onclick="delToday('${t.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+async function toggleToday(id) {
+  const task = document.querySelector(`button[onclick*="toggleToday('${id}')"]`).closest('.task');
+  const done = !task.querySelector('.chk').classList.contains('on');
+  try {
+    await fetch(`${API.today()}/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ done })
+    });
+    loadAll();
+  } catch (e) { console.error(e); }
+}
+
+async function delToday(id) {
+  try {
+    await fetch(`${API.today()}/${id}`, { method: 'DELETE' });
+    loadAll();
+  } catch (e) { console.error(e); }
+}
+
+// ── 논문 검색 ────────────────────────────────────────────
+async function searchPapers() {
+  const kw = document.getElementById('kw-inp').value.trim();
+  if (!kw) return;
+  const btn = document.getElementById('search-btn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const prompt = `Find 2 recent English academic papers about: "${kw}".
+Return ONLY this JSON (no markdown): [{"title":"","authors":"","year":"","journal":"","abstract_en":"","abstract_kr":"","contribution":""}]
+Make 2 objects in the array. abstract_en: 3 sentences. abstract_kr: Korean translation. contribution: 2 Korean sentences.`;
+
+  try {
+    const callRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': 'sk-ant-api03-YOUR_KEY_HERE', 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!callRes.ok) throw new Error('Claude API failed');
+    const data = await callRes.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    const papers = JSON.parse(text.replace(/```json|```/g, '').trim());
+    
+    document.getElementById('paper-results').innerHTML = papers.map((p, i) => `
+      <div class="paper-card">
+        <div class="paper-title">논문 ${i + 1}: ${p.title}</div>
+        <div class="paper-meta">${p.authors} · ${p.year} · ${p.journal}</div>
+        <div class="paper-sec">영어</div><div class="paper-body">${p.abstract_en}</div>
+        <div class="paper-sec">한국어</div><div class="paper-body">${p.abstract_kr}</div>
+        <div class="paper-sec">기여</div><div class="paper-body">${p.contribution}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('paper-results').innerHTML = `<div class="empty" style="color:var(--red)">오류: ${e.message}</div>`;
+  }
+  btn.innerHTML = '검색';
+  btn.disabled = false;
+}
+
+// ── 초기화 ─────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+loadAll();
+setInterval(loadAll, 5000); // 5초마다 동기화
+</script>
+</body>
+</html>
